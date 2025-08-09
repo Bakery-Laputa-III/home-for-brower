@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body {
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            background-color: #f5f5f5; font-family: Arial, sans-serif;
+            background-size: cover; background-position: center;
+            background-repeat: no-repeat; transition: background-image 0.5s ease;
+        }
+        
+        .search-container { text-align: center; }
+        
+        .search-wrapper {
+            display: flex; align-items: center;
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px);
+            border: 1px solid rgba(200, 200, 200, 0.5); border-radius: 24px;
+            width: 480px; max-width: 85vw; margin: 0 auto;
+            transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-wrapper:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            border-color: rgba(180, 180, 180, 0.7);
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .search-wrapper:focus-within {
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+            border-color: rgba(160, 160, 160, 0.8);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        
+        .search-box {
+            flex: 1; border: none; outline: none;
+            padding: 12px 20px; font-size: 16px;
+            font-family: 'Georgia', 'Times New Roman', serif, 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体';
+            background: transparent; color: #202124;
+        }
+        
+        .search-box::placeholder { color: #80868b; }
+        
+        .search-button {
+            border: none; background: transparent; cursor: pointer;
+            padding: 12px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; transition: background-color 0.2s ease;
+        }
+        
+        .search-button:hover { background-color: rgba(60, 64, 67, 0.08); }
+        
+        .search-icon { width: 20px; height: 20px; fill: #5f6368; }
+        
+        .browser-switch {
+            position: fixed; bottom: 20px; left: 20px;
+            width: 28px; height: 28px; display: flex;
+            justify-content: center; align-items: center; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .browser-switch:hover { transform: scale(1.05); }
+        
+        .browser-icon {
+            width: 28px; height: 28px; transition: opacity 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .image-title {
+            position: fixed; bottom: 20px; right: 20px;
+            color: white; font-size: 18px; font-weight: bold;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+            transition: opacity 0.3s ease; letter-spacing: 1px; line-height: 1.4;
+        }
+        
+        /* 开场动画样式 */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #f5f5f5; display: flex; justify-content: center;
+            align-items: center; z-index: 9999; transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #5f6368; border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            position: absolute; bottom: 50%; margin-bottom: 60px;
+            color: #5f6368; font-size: 14px; font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- 开场动画 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载吉卜力世界...</div>
+    </div>
+    
+    <div class="search-container">
+        <form id="searchForm" onsubmit="performSearch(event)">
+            <div class="search-wrapper">
+                <input type="text" class="search-box" id="searchBox" placeholder="搜索..." autocomplete="off">
+                <button type="submit" class="search-button">
+                    <svg class="search-icon" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="browser-switch" id="browserSwitch">
+        <svg class="browser-icon" id="edgeIcon" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="9" height="9" fill="#F25022"/>
+            <rect x="12" y="3" width="9" height="9" fill="#7FBA00"/>
+            <rect x="3" y="12" width="9" height="9" fill="#00A4EF"/>
+            <rect x="12" y="12" width="9" height="9" fill="#FFB900"/>
+        </svg>
+        <svg class="browser-icon" id="googleIcon" viewBox="0 0 24 24" fill="#4285F4" style="display: none;">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+    </div>
+    
+    <div class="image-title" id="imageTitle"></div>
+    
+    <script>
+        // 吉卜力作品列表
+        const ghibliWorks = [
+            { code: 'totoro', name: 'となりのトトロ', english: 'My Neighbor Totoro' },
+            { code: 'ponyo', name: '崖の上のポニョ', english: 'Ponyo on the Cliff' },
+            { code: 'howl', name: 'ハウルの動く城', english: "Howl's Moving Castle" },
+            { code: 'kiki', name: '魔女の宅急便', english: 'Kiki\'s Delivery Service' },
+            { code: 'mononoke', name: 'もののけ姫', english: 'Princess Mononoke' },
+            { code: 'laputa', name: '天空の城ラピュタ', english: 'Castle in the Sky' },
+            { code: 'nausicaa', name: '風の谷のナウシカ', english: 'Nausicaä of the Valley of the Wind' },
+            { code: 'porco', name: '紅の豚', english: 'Porco Rosso' },
+            { code: 'marnie', name: '思い出のマーニー', english: 'When Marnie Was There' },
+            { code: 'arrietty', name: '借りぐらしのアリエッティ', english: 'The Secret World of Arrietty' },
+            { code: 'poppy', name: 'コクリコ坂から', english: 'From Up on Poppy Hill' },
+            { code: 'earwig', name: 'アーヤと魔女', english: 'Earwig and the Witch' },
+            { code: 'kaze', name: '風立ちぬ', english: 'The Wind Rises' },
+            { code: 'redturtle', name: 'レッドタートル', english: 'The Red Turtle' },
+            { code: 'omohide', name: 'おもひでぽろぽろ', english: 'Only Yesterday' },
+            { code: 'onyourmark', name: 'On Your Mark', english: 'On Your Mark' },
+            { code: 'ghiblies', name: 'ギブリーズ', english: 'Ghiblies' },
+            { code: 'ged', name: 'ゲド戦記', english: 'Tales from Earthsea' },
+            { code: 'ponpoko', name: '平成狸合戦ぽんぽこ', english: 'Pom Poko' },
+            { code: 'neko', name: '猫の恩返し', english: 'The Cat Returns' },
+            { code: 'mimi', name: '耳をすませば', english: 'Whisper of the Heart' },
+            { code: 'spirited', name: '千と千尋の神隠し', english: 'Spirited Away' },
+            { code: 'kaguya', name: 'かぐや姫の物語', english: 'The Tale of the Princess Kaguya' },
+            { code: 'yamada', name: 'となりの山田くん', english: 'My Neighbors the Yamadas' },
+            { code: 'umi', name: '海がきこえる', english: 'Ocean Waves' }
+        ];
+        
+        // 生成随机背景图
+        function generateRandomGhibliImage() {
+            const randomWork = ghibliWorks[Math.floor(Math.random() * ghibliWorks.length)];
+            const randomNumber = Math.floor(Math.random() * 50) + 1;
+            const paddedNumber = randomNumber.toString().padStart(3, '0');
+            return {
+                url: `https://www.ghibli.jp/gallery/${randomWork.code}${paddedNumber}.jpg`,
+                title: `${randomWork.name} / ${randomWork.english}`
+            };
+        }
+        
+        // 隐藏开场动画
+        function hideLoadingOverlay() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.opacity = '0';
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 200); // 缩短淡出时间到200毫秒
+        }
+        
+        // 设置背景图片
+        function setRandomBackground() {
+            const imageData = generateRandomGhibliImage();
+            const img = new Image();
+            
+            img.onload = function() {
+                document.body.style.backgroundImage = `url('${imageData.url}')`;
+                document.getElementById('imageTitle').textContent = imageData.title;
+                // 背景图片加载完成后立即隐藏开场动画
+                hideLoadingOverlay();
+            };
+            
+            img.onerror = function() {
+                setRandomBackground();
+            };
+            
+            img.src = imageData.url;
+        }
+        
+        // 执行搜索
+        function performSearch(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const searchQuery = document.getElementById('searchBox').value.trim();
+            if (!searchQuery) return;
+            
+            const searchUrl = currentBrowser === 'edge' 
+                ? `https://www.bing.com/search?q=${encodeURIComponent(searchQuery)}`
+                : `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+            
+            window.location.href = searchUrl;
+        }
+        
+        // 页面加载时设置背景
+        window.addEventListener('load', setRandomBackground);
+        
+        // 点击页面时更换背景
+        document.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('search-box') && 
+                !e.target.classList.contains('search-button') && 
+                !e.target.classList.contains('search-icon')) {
+                setRandomBackground();
+            }
+        });
+        
+        // 浏览器切换
+        let currentBrowser = 'edge';
+        
+        function toggleBrowser() {
+            const edgeIcon = document.getElementById('edgeIcon');
+            const googleIcon = document.getElementById('googleIcon');
+            
+            if (currentBrowser === 'edge') {
+                edgeIcon.style.display = 'none';
+                googleIcon.style.display = 'block';
+                currentBrowser = 'google';
+            } else {
+                edgeIcon.style.display = 'block';
+                googleIcon.style.display = 'none';
+                currentBrowser = 'edge';
+            }
+        }
+        
+        // 浏览器切换按钮事件
+        document.getElementById('browserSwitch').addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleBrowser();
+        });
+        
+        // 确保在页面加载后最晚1秒隐藏开场动画（防止图片加载失败）
+        setTimeout(hideLoadingOverlay, 1000);
+    </script>
+</body>
+</html>
