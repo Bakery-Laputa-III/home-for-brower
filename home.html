@@ -259,6 +259,72 @@
         
         // 确保在页面加载后最晚1秒隐藏开场动画（防止图片加载失败）
         setTimeout(hideLoadingOverlay, 1000);
+        
+        // 简化的自动聚焦到搜索框
+        function focusSearchBox() {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox) {
+                // 先确保搜索框可见且没有被阻挡
+                searchBox.style.visibility = 'visible';
+                searchBox.style.position = 'relative';
+                searchBox.style.zIndex = '10000';
+                
+                // 强制聚焦
+                searchBox.focus();
+                
+                // 恢复原始样式
+                setTimeout(() => {
+                    searchBox.style.zIndex = '';
+                }, 100);
+                
+                return true;
+            }
+            return false;
+        }
+        
+        // 立即尝试聚焦（不等待开场动画）
+        setTimeout(focusSearchBox, 50);
+        
+        // 在DOM加载完成后再次尝试
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(focusSearchBox, 100);
+        });
+        
+        // 在页面完全加载后再次尝试
+        window.addEventListener('load', function() {
+            setTimeout(focusSearchBox, 300);
+        });
+        
+        // 修改hideLoadingOverlay函数，确保动画隐藏后聚焦
+        const originalHideLoadingOverlay = hideLoadingOverlay;
+        hideLoadingOverlay = function() {
+            originalHideLoadingOverlay();
+            setTimeout(focusSearchBox, 200);
+        };
+        
+        // 添加键盘事件监听，确保用户可以随时聚焦到搜索框
+        document.addEventListener('keydown', function(e) {
+            // 如果按的是字符键、数字键或空格键，且搜索框没有焦点，自动聚焦
+            if ((e.key.length === 1 || e.code === 'Space') && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                const searchBox = document.getElementById('searchBox');
+                if (searchBox && document.activeElement !== searchBox) {
+                    e.preventDefault();
+                    searchBox.focus();
+                    // 对于输入法，模拟输入事件
+                    setTimeout(() => {
+                        searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+                    }, 10);
+                }
+            }
+        });
+        
+        // 添加点击页面其他地方时的聚焦处理
+        document.addEventListener('click', function(e) {
+            // 如果点击的不是搜索相关元素，聚焦到搜索框
+            if (!e.target.closest('.search-container') && !e.target.closest('.browser-switch')) {
+                setTimeout(focusSearchBox, 50);
+            }
+        });
     </script>
 </body>
 </html>
